@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package jabref;
 
 import java.awt.Desktop;
@@ -11,10 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- * @author kevin
- */
 public class TrataArquivos {
 
     private String fileNameToSearch;
@@ -33,9 +24,7 @@ public class TrataArquivos {
     }
 
     public void searchDirectory(File directory, String fileNameToSearch) {
-
         setFileNameToSearch(fileNameToSearch);
-
         if (directory.isDirectory()) {
             search(directory);
         } else {
@@ -45,11 +34,7 @@ public class TrataArquivos {
     }
 
     private void search(File file) {
-
         if (file.isDirectory()) {
-            //System.out.println("Searching directory ... " + file.getAbsoluteFile());
-
-            //do you have permission to read this directory?
             if (file.canRead()) {
                 for (File temp : file.listFiles()) {
                     if (temp.isDirectory()) {
@@ -66,11 +51,10 @@ public class TrataArquivos {
 
     }
 
-    public String firstDiretorio(){
+    public String firstDiretorio() {
         return this.getResult().get(0);
     }
-    
-    
+
     public boolean findNameFile(String nameFile, File[] listFile) {
         for (File e : listFile) {
             if (e.getName().equals(nameFile)) {
@@ -105,23 +89,6 @@ public class TrataArquivos {
         }
     }
 
-    /*public String searchDiretory(String nomeArquivo) throws IOException, InterruptedException {
-        //String command = "find /home/kevin/ -iname " + '"' + nomeArquivo + '"'+" -print";
-        String command = "ls /home/kevin";
-        System.out.println(command);
-
-        String result = new String();
-
-        Process x = Runtime.getRuntime().exec(command);
-
-        Scanner scanner = new Scanner(x.getInputStream());
-        while (scanner.hasNextLine()) {
-            result = result.concat(scanner.nextLine());
-        }
-
-        return result;
-
-    }*/
     public void openAllFiles(File[] listFile) {
         if (Desktop.isDesktopSupported()) {
             try {
