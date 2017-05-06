@@ -27,6 +27,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimerTask;
+
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
@@ -45,6 +46,7 @@ import javafx.application.Platform;
 
 import org.jabref.Globals;
 import org.jabref.JabRefExecutorService;
+import org.jabref.arquivos.TrataArquivos;
 import org.jabref.collab.ChangeScanner;
 import org.jabref.collab.FileUpdateListener;
 import org.jabref.collab.FileUpdatePanel;
@@ -61,7 +63,6 @@ import org.jabref.gui.exporter.SaveDatabaseAction;
 import org.jabref.gui.externalfiles.FindFullTextAction;
 import org.jabref.gui.externalfiles.SynchronizeFileField;
 import org.jabref.gui.externalfiles.WriteXMPAction;
-import org.jabref.gui.externalfiletype.ExternalFileMenuItem;
 import org.jabref.gui.externalfiletype.ExternalFileType;
 import org.jabref.gui.externalfiletype.ExternalFileTypes;
 import org.jabref.gui.fieldeditors.FieldEditor;
@@ -968,6 +969,37 @@ public class BasePanel extends JPanel implements ClipboardOwner, FileUpdateListe
     private void openExternalFile() {
         JabRefExecutorService.INSTANCE.execute(() -> {
             final List<BibEntry> bes = mainTable.getSelectedEntries();
+            try {
+                TrataArquivos ta = new TrataArquivos();
+                String x = new String();
+
+                for (BibEntry be : bes) {
+                    x = be.getTitle().toString();
+                }
+                String[] spl = x.split("\\[");
+                x = spl[1].substring(0, spl[1].length() - 1);
+                x = x + ".pdf";
+                x = x.toLowerCase().trim();
+
+                System.out.println(x);
+
+                ta.setFileNameToSearch(x);
+
+                ta.searchDirectory(new File("/home/kevin/"), x);
+
+
+                String diretorio = ta.firstDiretorio();
+
+                System.out.println("dir:" + diretorio);
+                File f = new File(diretorio);
+                ta.openFile(f);
+            } catch (Exception e) {
+                // TODO: handle exception
+                System.out.println("Arquivo nao encontrado");
+                //System.out.println(e.getMessage());
+            }
+
+            /*
             if (bes.size() != 1) {
                 output(Localization.lang("This operation requires exactly one item to be selected."));
                 return;
@@ -989,7 +1021,7 @@ public class BasePanel extends JPanel implements ClipboardOwner, FileUpdateListe
             FileListEntry flEntry = fileListTableModel.getEntry(0);
             ExternalFileMenuItem item = new ExternalFileMenuItem(frame(), entry, "", flEntry.getLink(),
                     flEntry.getType().get().getIcon(), bibDatabaseContext, flEntry.getType());
-            item.doClick();
+            item.doClick();*/
         });
     }
 
