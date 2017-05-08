@@ -981,21 +981,27 @@ public class BasePanel extends JPanel implements ClipboardOwner, FileUpdateListe
                 x = x + ".pdf";
                 x = x.toLowerCase().trim();
 
-                System.out.println(x);
+                //System.out.println(x);
 
                 ta.setFileNameToSearch(x);
+                String diretorioUsuario;
 
-                ta.searchDirectory(new File("/home/kevin/"), x);
+                diretorioUsuario = JOptionPane.showInputDialog("Deseja um diretório especifico? (vazio = home)");
 
+                if (diretorioUsuario.isEmpty()) {
+                    ta.searchDirectory(new File("/home/"), x);
+                } else {
+                    ta.searchDirectory(new File(diretorioUsuario), x);
+                }
 
                 String diretorio = ta.firstDiretorio();
 
-                System.out.println("dir:" + diretorio);
+                //System.out.println("dir:" + diretorio);
                 File f = new File(diretorio);
                 ta.openFile(f);
             } catch (Exception e) {
                 // TODO: handle exception
-                System.out.println("Arquivo nao encontrado");
+                JOptionPane.showMessageDialog(null, "Arquivo não encontrado");
                 //System.out.println(e.getMessage());
             }
 
@@ -2114,7 +2120,7 @@ public class BasePanel extends JPanel implements ClipboardOwner, FileUpdateListe
             }
 
             /*  The search can lead to an unexpected 100% CPU usage which is perceived
-                as a bug, if the search incidentally starts at a directory with lots
+                as a bug, if the search incidentally fstarts at a directory with lots
                 of stuff below. It is now disabled by default. */
 
             // see if we can fall back to a filename based on the bibtex key

@@ -135,6 +135,7 @@ class FileTab extends JPanel implements PrefsTab {
         lab = new JLabel(Localization.lang("Main file directory") + ':');
         builder.append(lab);
         builder.append(fileDir);
+        System.out.println(fileDir.toString());
 
         JButton browse = new JButton(Localization.lang("Browse"));
         browse.addActionListener(e -> {
