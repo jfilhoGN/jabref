@@ -12,13 +12,12 @@ import java.util.Scanner;
 public class TrataBib {
 
     private File fileBib;
-    private File fileBase;
+    private File fileBaseSci;
 
-    public TrataBib(String base, String bib) throws IOException {
+    public TrataBib(String base, String bib) throws IOException, FileNotFoundException, InterruptedException {
         this.searchBase(base);
         this.searchBib(bib);
         this.addSRJ();
-        //this.addCitations();
     }
 
     public File getFileBib() {
@@ -30,11 +29,11 @@ public class TrataBib {
     }
 
     public File getFileBase() {
-        return fileBase;
+        return fileBaseSci;
     }
 
-    public void setFileBase(File fileBase) {
-        this.fileBase = fileBase;
+    public void setFileBase(File fileBaseSci) {
+        this.fileBaseSci = fileBaseSci;
     }
 
     public void searchBib(String bib) {
@@ -47,74 +46,41 @@ public class TrataBib {
         this.setFileBase(arq);
     }
 
-    public String getCitations(String title) throws IOException {
-        String Comando = "/home/kevin/miniconda3/bin/python script_crawling.py " + title;
+    public String getCitations(String author) throws IOException, InterruptedException {
+        String Comando = "/home/kevin/miniconda3/bin/python scholar.py -a \""+author+"\" -c 1";
         Process p = Runtime.getRuntime().exec(Comando);
         BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        if (in.readLine().isEmpty()) {
-            return "  Citations                 = {0},";
-        }
-        return "  Citations                 = {" + in.readLine() + "},";
-    }
-
-    public void addCitations() throws IOException {
-
-        Scanner scan = new Scanner("a.bib");
-        File novo = new File("b.bib");
-        Writer writer = new FileWriter(novo);
-
-        while (scan.hasNextLine()) {
-            String linha = scan.nextLine();
-            System.out.println(linha);
-            if (!linha.contains("=")) {
-                writer.write(linha + "\n");
-                writer.flush();
-            } /*else {
-                String[] spliter = linha.split("=");
-                if (spliter[0].toLowerCase().contains("title")) {
-                    spliter[1] = spliter[1].trim();
-                    if (spliter[1].charAt(spliter[1].length() - 1) == ',') {
-                        String clean = spliter[1].substring(1, spliter[1].length() - 2);
-                        String result = this.getCitations(clean);
-                        writer.write(result + "\n");
-                        writer.flush();
-                        writer.write(linha + "\n");
-                        writer.flush();
-                    } else if (spliter[1].charAt(spliter[1].length() - 1) == '}') {
-                        String clean = spliter[1].substring(1, spliter[1].length() - 1);
-                        String result = this.getCitations(clean);
-                        writer.write(result + "\n");
-                        writer.flush();
-                        writer.write(linha + "\n");
-                        writer.flush();
-                    }
-                } else {
-                    writer.write(linha + "\n");
-                    writer.flush();
+        String line;
+        while ((line = in.readLine()) != null) {
+            line = line.trim();
+            if (line.contains("Citations")){
+                String[] spliter = line.split(" ");
+                if (spliter.length == 2){
+                    return "  Citations = {"+spliter[1]+"},";
                 }
-            }*/
+            }
         }
-
-        writer.close();
+        in.close();
+        return "  Citations = {0},";
     }
 
     public String returnTuple(String journal) throws FileNotFoundException {
-        Scanner scan = new Scanner(fileBase);
+        Scanner scan = new Scanner(fileBaseSci);
         while (scan.hasNextLine()) {
             String getLine = scan.nextLine();
             if (getLine.contains(journal)) {
                 String[] vet = getLine.split("\\|");
                 if (vet[4].isEmpty()) {
-                    return "  SJR                      = {0},";
+                    return "  SJR = {0},";
                 } else {
-                    return "  SJR                      = {" + vet[4] + "},";
+                    return "  SJR = {" + vet[4] + "},";
                 }
             }
         }
-        return "  SJR                      = {0},";
+        return "  SJR = {0},";
     }
 
-    public void addSRJ() throws FileNotFoundException, IOException {
+    public void addSRJ() throws FileNotFoundException, IOException, InterruptedException {
         Scanner scan = new Scanner(fileBib);
         File novo = new File("a.bib");
         Writer writer = new FileWriter(novo);
@@ -143,7 +109,26 @@ public class TrataBib {
                         writer.write(linha + "\n");
                         writer.flush();
                     }
-                } else {
+                } else if (spliter[0].toLowerCase().contains("author")) {
+                    spliter[1] = spliter[1].trim();
+                    if (spliter[1].charAt(spliter[1].length() - 1) == ',') {
+                        String clean = spliter[1].substring(1, spliter[1].length() - 2);
+                        //System.out.println("author: " + clean);
+                        String result = this.getCitations(clean);
+                        writer.write(result + "\n");
+                        writer.flush();
+                        writer.write(linha + "\n");
+                        writer.flush();
+                    } else if (spliter[1].charAt(spliter[1].length() - 1) == '}') {
+                        String clean = spliter[1].substring(1, spliter[1].length() - 1);
+                        String result = this.returnTuple(clean);
+                        writer.write(result + "\n");
+                        writer.flush();
+                        writer.write(linha + "\n");
+                        writer.flush();
+                    }
+                } 
+                else {
                     writer.write(linha + "\n");
                     writer.flush();
                 }
