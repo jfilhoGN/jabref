@@ -1,4 +1,4 @@
-package Citacoes;
+package org.jabref.gui.importer.actions;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,7 +14,8 @@ public class TrataBib {
     private File fileBib;
     private File fileBaseSci;
 
-    public TrataBib(String base, String bib) throws IOException, FileNotFoundException, InterruptedException {
+    public TrataBib(String bib) throws FileNotFoundException, IOException, InterruptedException {
+        String base = "/home/kevin/Documentos/Facul/Engenharia de Software II/Projeto 1/jabref/Especificacoes_p2/scimagojr.csv";
         this.searchBase(base);
         this.searchBib(bib);
         this.addSRJ();
@@ -47,16 +48,18 @@ public class TrataBib {
     }
 
     public String getCitations(String author) throws IOException, InterruptedException {
-        String Comando = "/home/kevin/miniconda3/bin/python scholar.py -a \""+author+"\" -c 1";
+        String Comando = "/home/kevin/miniconda3/bin/python /home/kevin/Documentos/Facul/Engenharia de Software II/Projeto 1/jabref/Especificacoes_p2/scholar.py -a \""
+                + author + "\" -c 1";
         Process p = Runtime.getRuntime().exec(Comando);
         BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
         String line;
         while ((line = in.readLine()) != null) {
             line = line.trim();
-            if (line.contains("Citations")){
+            System.out.println(line);
+            if (line.contains("Citations")) {
                 String[] spliter = line.split(" ");
-                if (spliter.length == 2){
-                    return "  Citations = {"+spliter[1]+"},";
+                if (spliter.length == 2) {
+                    return "  Citations = {" + spliter[1] + "},";
                 }
             }
         }
@@ -82,8 +85,7 @@ public class TrataBib {
 
     public void addSRJ() throws FileNotFoundException, IOException, InterruptedException {
         Scanner scan = new Scanner(fileBib);
-        System.out.println(fileBib.getName());
-        File novo = new File("1"+fileBib.getName());
+        File novo = new File("1" + fileBib.getName());
         Writer writer = new FileWriter(novo);
 
         while (scan.hasNextLine()) {
@@ -128,14 +130,12 @@ public class TrataBib {
                         writer.write(linha + "\n");
                         writer.flush();
                     }
-                } 
-                else {
+                } else {
                     writer.write(linha + "\n");
                     writer.flush();
                 }
             }
         }
-
         writer.close();
     }
 

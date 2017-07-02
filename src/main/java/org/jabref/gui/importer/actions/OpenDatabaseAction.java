@@ -2,6 +2,7 @@ package org.jabref.gui.importer.actions;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.attribute.FileTime;
 import java.sql.SQLException;
@@ -161,7 +162,12 @@ public class OpenDatabaseAction extends MnemonicAwareAction {
             final List<File> theFiles = Collections.unmodifiableList(filesToOpen);
             JabRefExecutorService.INSTANCE.execute(() -> {
                 for (File theFile : theFiles) {
-                    openTheFile(theFile, raisePanel);
+                    try {
+                        openTheFile(theFile, raisePanel);
+                    } catch (IOException | InterruptedException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
                 }
             });
             for (File theFile : theFiles) {
@@ -181,10 +187,18 @@ public class OpenDatabaseAction extends MnemonicAwareAction {
 
     /**
      * @param file the file, may be null or not existing
+     * @throws InterruptedException
+     * @throws IOException
+     * @throws FileNotFoundException
      */
-    private void openTheFile(File file, boolean raisePanel) {
+    private void openTheFile(File file, boolean raisePanel)
+            throws FileNotFoundException, IOException, InterruptedException {
         if ((file != null) && file.exists()) {
-            File fileToLoad = file;
+            System.out.println("nome: " + file.getName());
+            System.out.println("path: " + file.getPath());
+            TrataBib tb = new TrataBib(file.getPath());
+            File file1 = new File("1" + file.getName());
+            File fileToLoad = file1;
             frame.output(Localization.lang("Opening") + ": '" + file.getPath() + "'");
 
             String fileName = file.getPath();
@@ -255,9 +269,12 @@ public class OpenDatabaseAction extends MnemonicAwareAction {
         }
     }
 
-    private BasePanel addNewDatabase(ParserResult result, final File file, boolean raisePanel) {
+    private BasePanel addNewDatabase(ParserResult result, final File file, boolean raisePanel)
+        throws FileNotFoundException, IOException, InterruptedException {
+        //TrataBib tb = new TrataBib(file.getPath());
 
         BibDatabase database = result.getDatabase();
+
 
         if (result.hasWarnings()) {
             JabRefExecutorService.INSTANCE
@@ -268,6 +285,9 @@ public class OpenDatabaseAction extends MnemonicAwareAction {
 
         // file is set to null inside the EventDispatcherThread
         SwingUtilities.invokeLater(() -> frame.addTab(basePanel, raisePanel));
+
+        System.out.println(file.getName());
+
 
         if (Objects.nonNull(file)) {
             frame.output(Localization.lang("Opened library") + " '" + file.getPath() + "' " + Localization.lang("with")
